@@ -1,0 +1,41 @@
+name: projectName
+repositoryId: 84  # переделать
+repositoryEvent:
+  - name: bitbucket
+    pathToEvent: eventKey
+    events:
+      - event: pr:comment:added
+        rules:
+          - action: TempName
+            conditions:
+              - jsonPath: eventKey
+                value: pr:comment:added
+              - jsonPath: eventKey
+                value: pr:comment:added
+          - action: TempName
+            conditions:
+              - jsonPath: eventKey
+                value: pr:comment:added
+              - jsonPath: eventKey
+                value: pr:comment:added
+  - name: bitbucket
+    pathToEvent: jsonpath
+    events:
+      - event: pr:comment:added
+        rules:
+          - action: TempName
+            conditions:
+              - jsonPath: eventKey
+                value: pr:comment:added
+              - jsonPath: eventKey
+                value: pr:comment:added
+          - action: TempName
+            conditions:
+              - jsonPath: eventKey
+                value: pr:comment:added
+              - jsonPath: eventKey
+                value: pr:comment:added
+
+reviewers:
+  - Evgeniy.Shevtsov
+  - Mikhail.Burinov

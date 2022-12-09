@@ -1,0 +1,8 @@
+name: TempName
+url: http://ya.ru
+method: POST
+body: >-
+  {
+  "temp": "temp",
+  "Name": ${Request.comment.text}
+  }
