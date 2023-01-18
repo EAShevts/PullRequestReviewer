@@ -1,26 +1,61 @@
 package com.eashevts.PullRequestReviewer.service.impl;
 
-import com.eashevts.PullRequestReviewer.rest.dto.request.SourceRequest;
 import com.eashevts.PullRequestReviewer.service.DataService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import lombok.AllArgsConstructor;
+import com.jayway.jsonpath.PathNotFoundException;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
 @Service
-@AllArgsConstructor
+@Slf4j
 public class DataServiceImpl implements DataService {
     ObjectMapper mapper = new ObjectMapper();
 
+    public String getValueByJsonPath(Object value, String jsonPath) {
+        try {
+            return JsonPath.parse(convertToJson(value)).read(jsonPath, String.class);
+        } catch (PathNotFoundException ex) {
+            log.info("Not found value from jsonpath {}", jsonPath);
+            return "";
+        }
+    }
 
-    public String getValueByJsonPath(Object value, String jsonPath){
-        return JsonPath.parse(convertToJson(value)).read(jsonPath);
+    public String getValue(Object value, String jsonPath) {
+        return skipParameterBody(getValueByJsonPath(value, jsonPath));
+    }
+
+
+    public JsonNode getParameterFromValue(Object value, String jsonPath) {
+        try {
+            return mapper.readTree(getParameterBody(getValueByJsonPath(value, jsonPath)));
+        } catch (JsonProcessingException e) {
+            return mapper.createObjectNode();
+        }
+    }
+
+    @SneakyThrows
+    private String convertToJson(Object value) {
+        return mapper.writeValueAsString(value);
     }
     @SneakyThrows
-    private String convertToJson(Object value){
-            return mapper.writeValueAsString(value);
+    public JsonNode convertToJsonNode(Object value) {
+        try {
+            return mapper.readTree(String.valueOf(value));
+        } catch (JsonProcessingException e) {
+            return mapper.createObjectNode();
+        }
+    }
+
+    private String skipParameterBody(String value) {
+        return value.contains("{") ? value.substring(0, value.indexOf("{")) : value;
+    }
+
+    public String getParameterBody(String value) {
+        return value.contains("{") ? value.substring(value.indexOf("{")) : value;
     }
 }

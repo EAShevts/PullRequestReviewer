@@ -1,6 +1,9 @@
 name: TempName
 url: http://ya.ru
 method: POST
+headers:
+  - name: name
+    value: value
 body: >-
   {
   "temp": "temp",

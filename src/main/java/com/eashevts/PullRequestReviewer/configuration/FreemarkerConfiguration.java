@@ -1,10 +1,11 @@
 package com.eashevts.PullRequestReviewer.configuration;
 
 import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+//import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@org.springframework.context.annotation.Configuration
 public class FreemarkerConfiguration {
 
     @Bean
@@ -13,10 +14,9 @@ public class FreemarkerConfiguration {
     }
 
     @Bean
-    public freemarker.template.Configuration templateProcessorConfiguration(StringTemplateLoader stringTemplateLoader) {
+    public Configuration templateProcessorConfiguration(StringTemplateLoader stringTemplateLoader) {
 
-        freemarker.template.Configuration configuration =
-                new freemarker.template.Configuration();
+        Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
         configuration.setBooleanFormat("true,false");
         configuration.setDefaultEncoding("UTF-8");
         configuration.setTemplateLoader(stringTemplateLoader);

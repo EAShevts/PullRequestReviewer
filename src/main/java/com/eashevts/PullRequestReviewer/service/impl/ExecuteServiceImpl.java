@@ -1,11 +1,14 @@
 package com.eashevts.PullRequestReviewer.service.impl;
 
-import com.eashevts.PullRequestReviewer.dto.*;
-import com.eashevts.PullRequestReviewer.rest.dto.request.SourceRequest;
+import com.eashevts.PullRequestReviewer.dto.Condition;
+import com.eashevts.PullRequestReviewer.dto.Event;
+import com.eashevts.PullRequestReviewer.dto.RepositoryEvent;
+import com.eashevts.PullRequestReviewer.dto.Rules;
+import com.eashevts.PullRequestReviewer.rest.dto.ActionResponse;
 import com.eashevts.PullRequestReviewer.service.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -23,53 +26,53 @@ public class ExecuteServiceImpl implements ExecuteService {
 
 
     @Override
-    public ResponseBody processEvent(SourceRequest request, String inputType, Long repositoryId) {
+    public ResponseBody processEvent(JsonNode request, String inputType, Long repositoryId) {
         RepositoryEvent repositoryEvent = projectConfigurationService.getRepositoryConfig(repositoryId, inputType);
-        String inputEventValue = dataService.getValueByJsonPath(request, repositoryEvent.getPathToEvent());
+        String inputEventValue = dataService.getValue(request, repositoryEvent.getPathToEvent());
 
         List<Event> events = repositoryEvent.getEvents().stream()
                 .filter(v -> Objects.equals(v.getEvent(), inputEventValue))
                 .collect(Collectors.toList());
 
-        List<String> actions = computeEvents(events, request);
-        List<Response> result =  httpService.executeActions(actions, request);
+        List<Rules> rules = computeEvents(events, request);
 
+        List<ActionResponse> result = new ArrayList<>();
 
-//        RepositoryEvent event = currentProject.getRepositoryEvent().stream()
-//                .filter(v -> Objects.equals(v.getEvent(), request.getEventKey()))
-//                .findFirst()
-////                .orElseGet(null);
-//        log.info("For request {} find next settings, event: {}, configuration {}",request ,event , currentProject);
-//        List<String> executableActions = new ArrayList<>();
-//        event.getRules().forEach(
-//                rule -> {
-//                    String value = dataService.getValueByJsonPath(request, rule.getJsonPath());
-//                    log.info("Execute condition  {} = {}", value , rule.getValue() );
-//                    if (value.equals(rule.getValue())){
-//                        executableActions.add(rule.getAction());
-//                    }
-//                    log.info("For request {}, need execute next actions {}", request, executableActions );
-//                }
-//        );
-//       List<Response> result =  httpService.executeActions(executableActions);
+        rules.forEach(
+                rule -> {
+                    Map<String, Object> templateValue = new HashMap<>();
+                    putValueForTemplate(templateValue, request, "Request");
+                    putValueForTemplate(templateValue, dataService.getParameterFromValue(request, "comment.text"), "Parameters");
+                    if (! Objects.equals(rule.getEnrichAction(), null))
+                    {
+                        ActionResponse enrichResponse =  httpService.executeAction(templateValue, rule.getEnrichAction());
+                        log.info("Execute enrich action {}, response {}", rule.getEnrichAction(), enrichResponse);
+                        putValueForTemplate(templateValue, dataService.convertToJsonNode(enrichResponse.getBody()), "Enrich");
+                    }
+
+                    result.add(httpService.executeAction(templateValue, rule.getAction()));
+                }
+
+        );
         return null;
     }
 
-    private List<String> computeEvents(List<Event> events, SourceRequest request) {
+    private Map<String, Object> putValueForTemplate(Map<String, Object> result, Object value, String name) {
+        result.put(name, value);
+        return result;
+    }
+
+    private List<Rules> computeEvents(List<Event> events, JsonNode request) {
         List<Rules> rules = events.stream().flatMap(e -> e.getRules().stream()).collect(Collectors.toList());
-        return  rules.stream()
+        return rules.stream()
                 .filter(r -> checkAllConditions(r.getConditions(), request))
-                .map(r -> r.getAction()).collect(Collectors.toList());
+                .collect(Collectors.toList());
 
     }
 
-    private boolean checkAllConditions(List<Condition> conditions, SourceRequest request) {
+    private boolean checkAllConditions(List<Condition> conditions, JsonNode request) {
         return !conditions.stream()
-                .anyMatch(condition -> !Objects.equals(dataService.getValueByJsonPath(request, condition.getJsonPath()), condition.getValue()));
+                .anyMatch(condition -> !Objects.equals(dataService.getValue(request, condition.getJsonPath()), condition.getValue()));
     }
-//    @Override
-//    private  parseEvent(){
-//
-//    }
 
 }

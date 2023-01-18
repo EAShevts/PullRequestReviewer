@@ -1,11 +1,12 @@
 package com.eashevts.PullRequestReviewer.service;
 
-import com.eashevts.PullRequestReviewer.rest.dto.request.SourceRequest;
-import okhttp3.Response;
+import com.eashevts.PullRequestReviewer.rest.dto.ActionResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HttpService {
 
-    public List<Response> executeActions(List<String> actions, SourceRequest request);
+    public List<ActionResponse> executeActions(List<String> actions, Map<String, Object> parametersForTemplate);
+    public ActionResponse executeAction(Map<String, Object> parametersForTemplate, String action);
 }

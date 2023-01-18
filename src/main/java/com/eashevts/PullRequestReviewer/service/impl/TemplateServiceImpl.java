@@ -24,6 +24,7 @@ public class TemplateServiceImpl implements TemplateService {
     freemarker.template.Configuration templateProcessorConfiguration;
 
     private final String POSTFIX = "Template";
+    private final String POSTFIX_URL = "URL";
 
     @Autowired
     public TemplateServiceImpl(StringTemplateLoader stringTemplateLoader,
@@ -32,14 +33,23 @@ public class TemplateServiceImpl implements TemplateService {
         this.templateProcessorConfiguration = templateProcessorConfiguration;
         actionLoader.loadAction().forEach(
                 action ->
-                        stringTemplateLoader.putTemplate(action.getName() + POSTFIX, action.getBody())
+                {
+                    stringTemplateLoader.putTemplate(action.getName() + POSTFIX, action.getBody());
+                    stringTemplateLoader.putTemplate(action.getName() + POSTFIX_URL + POSTFIX, action.getUrl());
+                }
+
         );
     }
 
     @SneakyThrows
-    public String processTemplate(Map<String, Object> parameters, String actionName) {
+    public String processTemplateBodyAction(Map<String, Object> parameters, String actionName) {
         Template template = templateProcessorConfiguration.getTemplate(actionName + POSTFIX);
         return generateString(template, parameters);
+    }
+    @SneakyThrows
+    public String processTemplateURL(Map<String, Object> parameters, String actionName) {
+        Template template = templateProcessorConfiguration.getTemplate(actionName + POSTFIX_URL + POSTFIX);
+        return generateString(template, parameters).strip();
     }
 
     private String generateString(Template template, Map<String, Object> params) throws IOException, TemplateException {

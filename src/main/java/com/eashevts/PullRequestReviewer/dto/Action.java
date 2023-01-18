@@ -2,11 +2,16 @@ package com.eashevts.PullRequestReviewer.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;
+import org.springframework.lang.Nullable;
+
+import java.util.List;
 
 @Value
 public class Action {
     String name;
     String url;
+    @Nullable
+    List<ActionHeaders> headers;
     String method;
     String body;
 
@@ -15,6 +20,8 @@ public class Action {
             String name,
             @JsonProperty("url")
             String url,
+            @Nullable @JsonProperty("headers")
+            List<ActionHeaders> headers,
             @JsonProperty("method")
             String method,
             @JsonProperty("body")
@@ -23,5 +30,6 @@ public class Action {
         this.url = url;
         this.method = method;
         this.body = body;
+        this.headers = headers;
     }
 }

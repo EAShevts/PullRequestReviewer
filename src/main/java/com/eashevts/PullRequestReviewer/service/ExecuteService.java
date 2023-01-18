@@ -1,9 +1,9 @@
 package com.eashevts.PullRequestReviewer.service;
 
-import com.eashevts.PullRequestReviewer.rest.dto.request.SourceRequest;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 public interface ExecuteService {
 
-    public ResponseBody processEvent(SourceRequest request, String inputType, Long repositoryId);
+    public ResponseBody processEvent(JsonNode request, String inputType, Long repositoryId);
 }

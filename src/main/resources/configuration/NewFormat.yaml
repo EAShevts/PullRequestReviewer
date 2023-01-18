@@ -1,41 +1,34 @@
 name: projectName
-repositoryId: 84  # переделать
+repositoryId: 84
 repositoryEvent:
   - name: bitbucket
     pathToEvent: eventKey
     events:
       - event: pr:comment:added
         rules:
-          - action: TempName
+          - action: AddLaunchLinkInPR
             conditions:
-              - jsonPath: eventKey
-                value: pr:comment:added
-              - jsonPath: eventKey
-                value: pr:comment:added
-          - action: TempName
-            conditions:
-              - jsonPath: eventKey
-                value: pr:comment:added
-              - jsonPath: eventKey
-                value: pr:comment:added
-  - name: bitbucket
-    pathToEvent: jsonpath
-    events:
-      - event: pr:comment:added
+              - jsonPath: comment.text
+                value: "!run_e2e_tests"
+              - jsonPath: pullRequest.open
+                value: true
+            enrichAction: RunE2E
+      - event: pr:opened
         rules:
-          - action: TempName
+          - action: AddInstructionMsg
             conditions:
-              - jsonPath: eventKey
-                value: pr:comment:added
-              - jsonPath: eventKey
-                value: pr:comment:added
-          - action: TempName
+              - jsonPath: pullRequest.open
+                value: true
+
+  - name: teamcity
+    pathToEvent: build.notifyType
+    events:
+      - event: buildFinished
+        rules:
+          - action: SendE2EResultToStash
             conditions:
-              - jsonPath: eventKey
-                value: pr:comment:added
-              - jsonPath: eventKey
-                value: pr:comment:added
+              - jsonPath: build.buildResultPrevious
+                value: success
 
 reviewers:
   - Evgeniy.Shevtsov
-  - Mikhail.Burinov
