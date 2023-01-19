@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -42,5 +40,9 @@ public class ProjectLoader {
                 .collect(Collectors.toList());
     }
 
-
+//    private List<Rules> sortRules(List<Rules> rules) {
+//        return rules.stream()
+//                .sorted(Comparator.comparingInt(Rules::getPriority))
+//                .collect(Collectors.toList());
+//    }
 }

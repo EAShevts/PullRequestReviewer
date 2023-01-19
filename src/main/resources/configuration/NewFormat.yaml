@@ -6,13 +6,38 @@ repositoryEvent:
     events:
       - event: pr:comment:added
         rules:
-          - action: AddLaunchLinkInPR
+          - action: TempName
             conditions:
               - jsonPath: comment.text
                 value: "!run_e2e_tests"
               - jsonPath: pullRequest.open
                 value: true
-            enrichAction: RunE2E
+            priority: 1
+            savedAs: nameSavedObject
+          - action: TempName
+            conditions:
+              - jsonPath: comment.text
+                value: "!run_e2e_tests"
+              - jsonPath: pullRequest.open
+                value: true
+            priority: 2
+            savedAs: nameSavedObjectw
+          - action: TempName
+            conditions:
+              - jsonPath: comment.text
+                value: "!run_e2e_tests"
+              - jsonPath: pullRequest.open
+                value: true
+            priority: 5
+            savedAs: nameSavedObject3
+          - action: TempName
+            conditions:
+              - jsonPath: comment.text
+                value: "!run_e2e_tests"
+              - jsonPath: pullRequest.open
+                value: true
+            priority: 4
+            savedAs: nameSavedObject1
       - event: pr:opened
         rules:
           - action: AddInstructionMsg

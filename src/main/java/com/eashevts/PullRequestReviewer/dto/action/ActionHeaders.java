@@ -1,4 +1,4 @@
-package com.eashevts.PullRequestReviewer.dto;
+package com.eashevts.PullRequestReviewer.dto.action;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

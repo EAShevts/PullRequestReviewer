@@ -1,8 +1,8 @@
 package com.eashevts.PullRequestReviewer.service.impl;
 
 import com.eashevts.PullRequestReviewer.configuration.action.ActionLoader;
-import com.eashevts.PullRequestReviewer.dto.Action;
-import com.eashevts.PullRequestReviewer.dto.ActionHeaders;
+import com.eashevts.PullRequestReviewer.dto.action.Action;
+import com.eashevts.PullRequestReviewer.dto.action.ActionHeaders;
 import com.eashevts.PullRequestReviewer.rest.dto.ActionResponse;
 import com.eashevts.PullRequestReviewer.service.DataService;
 import com.eashevts.PullRequestReviewer.service.HttpService;

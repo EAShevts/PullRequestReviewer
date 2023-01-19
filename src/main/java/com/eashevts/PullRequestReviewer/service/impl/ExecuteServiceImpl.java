@@ -3,7 +3,7 @@ package com.eashevts.PullRequestReviewer.service.impl;
 import com.eashevts.PullRequestReviewer.dto.Condition;
 import com.eashevts.PullRequestReviewer.dto.Event;
 import com.eashevts.PullRequestReviewer.dto.RepositoryEvent;
-import com.eashevts.PullRequestReviewer.dto.Rules;
+import com.eashevts.PullRequestReviewer.dto.Rule;
 import com.eashevts.PullRequestReviewer.rest.dto.ActionResponse;
 import com.eashevts.PullRequestReviewer.service.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,25 +34,23 @@ public class ExecuteServiceImpl implements ExecuteService {
                 .filter(v -> Objects.equals(v.getEvent(), inputEventValue))
                 .collect(Collectors.toList());
 
-        List<Rules> rules = computeEvents(events, request);
+        List<Rule> rules = computeEvents(events, request);
 
         List<ActionResponse> result = new ArrayList<>();
 
+        Map<String, Object> templateValue = new HashMap<>();
+        putValueForTemplate(templateValue, request, "Request");
+        putValueForTemplate(templateValue,
+                dataService.getParameterFromValue(request, "comment.text"),
+                "Parameters"); /* #TODO fix this shit*/
+
         rules.forEach(
                 rule -> {
-                    Map<String, Object> templateValue = new HashMap<>();
-                    putValueForTemplate(templateValue, request, "Request");
-                    putValueForTemplate(templateValue, dataService.getParameterFromValue(request, "comment.text"), "Parameters");
-                    if (! Objects.equals(rule.getEnrichAction(), null))
-                    {
-                        ActionResponse enrichResponse =  httpService.executeAction(templateValue, rule.getEnrichAction());
-                        log.info("Execute enrich action {}, response {}", rule.getEnrichAction(), enrichResponse);
-                        putValueForTemplate(templateValue, dataService.convertToJsonNode(enrichResponse.getBody()), "Enrich");
-                    }
-
-                    result.add(httpService.executeAction(templateValue, rule.getAction()));
+                    ActionResponse actionResponse = httpService.executeAction(templateValue, rule.getAction());
+                    putValueForTemplate(templateValue, dataService.convertToJsonNode(actionResponse.getBody()),
+                            rule.getSavedName());
+                    result.add(actionResponse);
                 }
-
         );
         return null;
     }
@@ -62,8 +60,8 @@ public class ExecuteServiceImpl implements ExecuteService {
         return result;
     }
 
-    private List<Rules> computeEvents(List<Event> events, JsonNode request) {
-        List<Rules> rules = events.stream().flatMap(e -> e.getRules().stream()).collect(Collectors.toList());
+    private List<Rule> computeEvents(List<Event> events, JsonNode request) {
+        List<Rule> rules = events.stream().flatMap(e -> e.getRules().stream()).collect(Collectors.toList());
         return rules.stream()
                 .filter(r -> checkAllConditions(r.getConditions(), request))
                 .collect(Collectors.toList());

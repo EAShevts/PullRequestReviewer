@@ -1,6 +1,6 @@
 package com.eashevts.PullRequestReviewer.service.impl;
 
-import com.eashevts.PullRequestReviewer.dto.Action;
+import com.eashevts.PullRequestReviewer.dto.action.Action;
 import com.eashevts.PullRequestReviewer.service.RequestBuilder;
 import okhttp3.MediaType;
 import okhttp3.Request;

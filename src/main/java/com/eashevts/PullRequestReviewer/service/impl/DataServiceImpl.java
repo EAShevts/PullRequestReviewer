@@ -14,14 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class DataServiceImpl implements DataService {
+    private static String EMPTY_VALUE = "";
     ObjectMapper mapper = new ObjectMapper();
 
     public String getValueByJsonPath(Object value, String jsonPath) {
         try {
             return JsonPath.parse(convertToJson(value)).read(jsonPath, String.class);
         } catch (PathNotFoundException ex) {
-            log.info("Not found value from jsonpath {}", jsonPath);
-            return "";
+            log.info("Not found value from json path {} in object", jsonPath, value);
+            return EMPTY_VALUE;
         }
     }
 
@@ -42,6 +43,7 @@ public class DataServiceImpl implements DataService {
     private String convertToJson(Object value) {
         return mapper.writeValueAsString(value);
     }
+
     @SneakyThrows
     public JsonNode convertToJsonNode(Object value) {
         try {
