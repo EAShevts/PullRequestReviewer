@@ -69,8 +69,8 @@ public class ExecuteServiceImpl implements ExecuteService {
     }
 
     private boolean checkAllConditions(List<Condition> conditions, JsonNode request) {
-        return !conditions.stream()
-                .anyMatch(condition -> !Objects.equals(dataService.getValue(request, condition.getJsonPath()), condition.getValue()));
+        return conditions.stream()
+                .allMatch(condition -> Objects.equals(dataService.getValue(request, condition.getJsonPath()), condition.getValue()));
     }
 
 }
