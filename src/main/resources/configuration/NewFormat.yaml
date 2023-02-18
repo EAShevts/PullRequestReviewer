@@ -5,6 +5,7 @@ repositoryEvent:
     pathToEvent: eventKey
     events:
       - event: pr:comment:added
+        pathToParameters: comment.text
         rules:
           - action: TempName
             conditions:
